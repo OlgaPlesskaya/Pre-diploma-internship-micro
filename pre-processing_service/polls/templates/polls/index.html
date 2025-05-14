@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сервис предобработки текстовых сообщений</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'polls/styles.css' %}">
+    <!-- Подключение Bootstrap -->
+    <link rel="stylesheet" href="{% static 'polls/bootstrap.min.css' %}">
+    <!-- Подключение jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js "></script>
+
+</head>
+<body>
+    <header class="text-center py-4 bg-white shadow-sm">
+        <h1>Сервис предобработки текстовых сообщений</h1>
+    </header>
+    <main>
+        <div class="container">
+            <div class="custom-wrapper">
+                <section class="col-12 col-md-3 bg-light p-4 left-section">
+                    <h2>Образование</h2>
+                    <p>Информация о категориях:</p>
+                    <input type="text" id="search" placeholder="Поиск по подкатегориям" onkeyup="filterSubcategories()">
+                    <ul id="category-list">
+                        {% for category in categories %}
+                            <li class="level-1">
+                                <span class="emoji">{{ category.emoji }}</span> {{ category.name }}
+                                <div class="subcategories" style="display: none;">
+                                    <table>
+                                        {% for subcategory in category.subcategories.all %}
+                                            <tr class="subcategory">
+                                                <td>{{ subcategory.name }}</td>
+                                                <td><button class="toggle-button">→</button></td>
+                                            </tr>
+                                            <tr class="details" style="display: none;">
+                                                <td colspan="2">{{ subcategory.description }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </table>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </section>
+                <script>
+                    function filterSubcategories() {
+                        const input = document.getElementById('search');
+                        const filter = input.value.toLowerCase();
+                        const categoryList = document.getElementById('category-list');
+                        const categories = categoryList.getElementsByTagName('li');
+                        for (let i = 0; i < categories.length; i++) {
+                            const subcategories = categories[i].getElementsByClassName('subcategory');
+                            let hasVisibleSubcategory = false;
+                            for (let j = 0; j < subcategories.length; j++) {
+                                const subcategoryName = subcategories[j].getElementsByTagName('td')[0].textContent || subcategories[j].getElementsByTagName('td')[0].innerText;
+                                if (subcategoryName.toLowerCase().indexOf(filter) > -1) {
+                                    subcategories[j].style.display = "";
+                                    hasVisibleSubcategory = true;
+                                } else {
+                                    subcategories[j].style.display = "none";
+                                }
+                            }
+                            // Показать или скрыть подкатегории в зависимости от наличия видимых подкатегорий
+                            categories[i].getElementsByClassName('subcategories')[0].style.display = hasVisibleSubcategory ? "block" : "none";
+                        }
+                    }
+                </script>
+                <section class="col-12 col-md-9 bg-light p-4 right-section">
+                    <h2>Как пользоваться сервисом:</h2>
+                    <section class="how-to-use my-3">
+                        <div class="">
+                            <ul class="list-group">
+                                <!-- Шаг 1 -->
+                                <li class="list-group-item d-flex align-items-start">
+                                    <span class="me-3 fs-4">1️⃣</span>
+                                    <div>
+                                        <h5 class="fw-bold mb-1">Загрузите файл</h5>
+                                        <p class="mb-0">Нажмите кнопку «Выберите файл» и выберите подходящий файл в формате <code>.csv</code>. Убедитесь, что файл содержит текстовые данные.</p>
+                                    </div>
+                                </li>
+                                <!-- Шаг 2 -->
+                                <li class="list-group-item d-flex align-items-start">
+                                    <span class="me-3 fs-4">2️⃣</span>
+                                    <div>
+                                        <h5 class="fw-bold mb-1">Дождитесь обработки</h5>
+                                        <p class="mb-0">После загрузки начнётся автоматическая обработка данных. Прогресс будет отображаться на экране. Просим не закрывать страницу до завершения процесса.</p>
+                                    </div>
+                                </li>
+                                <!-- Шаг 3 -->
+                                <li class="list-group-item d-flex align-items-start">
+                                    <span class="me-3 fs-4">3️⃣</span>
+                                    <div>
+                                        <h5 class="fw-bold mb-1">Просмотрите и скачайте результаты </h5>
+                                        <p class="mb-0">По завершении вы увидите таблицу с результатами анализа. Также станет доступен для скачивания обработанный CSV-файл.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                            <p class="mb-0">* на данный момент обработка применяется к 1-му столбцу в загруженном файле</p>
+                        </div>
+                    </section>
+                    <h2 class="display-6 text-black mb-2">Загрузите файл для обработки</h2>
+                    <!-- Форма для загрузки CSV -->
+                    <form id="upload-form" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <label for="file-upload" class="form-label mb-2">Выберите CSV-файл:</label>
+                        <div class="d-flex align-items-center gap-2" style="max-width: 500px;">
+                            <input class="form-control" type="file" name="file" id="file-upload" accept=".csv">
+                            <button type="submit" class="btn btn-primary" id="upload-btn" style="display: none;">Загрузить</button>
+                        </div>
+                    </form>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const fileInput = document.getElementById('file-upload');
+                            const uploadBtn = document.getElementById('upload-btn');
+                            // Показываем/скрываем кнопку "Загрузить" и меняем стиль input
+                            fileInput.addEventListener('change', function () {
+                                if (fileInput.files.length > 0) {
+                                    uploadBtn.style.display = 'inline-block';
+                                    fileInput.classList.add('file-selected'); // серый цвет
+                                } else {
+                                    uploadBtn.style.display = 'none';
+                                    fileInput.classList.remove('file-selected'); // синий цвет
+                                }
+                            });
+                        });
+                    </script>
+                    <!-- Прогресс-бар -->
+                    <div class="progress mt-3 hidden" id="progress-bar">
+                        <div class="progress-bar" id="progress-bar-fill" role="progressbar" style="width: 0%;"></div>
+                    </div>
+                    <!-- Результаты -->
+                    <section id="results-section" class="hidden mt-4">
+                        <div class="d-flex align-items-center justify-content-between mt-4" id="download-row">
+                            <h3>Результаты обработки (первые 10 строк):</h3>
+                            <a id="download-link" class="btn btn-success hidden" download>Скачать обработанный файл</a>
+                        </div>
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="col-6">Текст</th>
+                                    <th class="col-4">Метки</th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-table-body">
+                                <!-- Сюда будут подгружаться данные -->
+                            </tbody>
+                        </table>
+                        
+                        <div id="charts-section" class="hidden">
+                            <div id="charts-container"></div>
+                        </div>
+                    </section>
+                </section>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>© 2025 Сервис предобработки текстовых сообщений. Разработано студентом Плесской О.В. в рамках преддипломной практики.</p>
+    </footer>
+    <script>
+        // Функция для показа/скрытия таблицы по категории
+        document.querySelectorAll('.left-section li').forEach(category => {
+            category.addEventListener('click', function () {
+                const subcategories = this.querySelector('.subcategories');
+                if (subcategories.style.display === 'block') {
+                    subcategories.style.display = 'none';
+                } else {
+                    subcategories.style.display = 'block';
+                }
+            });
+        });
+
+        // Функция для показа/скрытия детальной информации в таблице
+        document.querySelectorAll('.toggle-button').forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.stopPropagation();
+                
+                const detailsRow = this.closest('tr').nextElementSibling;
+                const subcategoryRow = this.closest('tr');    
+                if (detailsRow.style.display === 'table-row') {
+                    detailsRow.style.display = 'none';
+                    this.textContent = '→';
+                    subcategoryRow.classList.remove('active'); // Убираем серый цвет из строки подкатегории
+                    detailsRow.classList.remove('active');      // Убираем серый цвет из строки описания
+                } else {
+                    detailsRow.style.display = 'table-row';
+                    this.textContent = '↓';
+                    subcategoryRow.classList.add('active'); // Добавляем серый цвет к строке подкатегории
+                    detailsRow.classList.add('active');      // Добавляем серый цвет к строке описания
+                }
+            });
+        });
+
+        $(document).ready(function () {
+        $('#upload-form').on('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            $('#progress-bar').removeClass('hidden');
+            $('#progress-bar-fill').css('width', '0%');
+            $('#results-section').addClass('hidden');
+            $('#download-link').addClass('hidden');
+            $('#charts-section').addClass('hidden'); // Скрываем секцию с графиками перед загрузкой
+    
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                xhr: function () {
+                    const xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener('progress', function (event) {
+                        if (event.lengthComputable) {
+                            const percentComplete = (event.loaded / event.total) * 100;
+                            $('#progress-bar-fill').css('width', percentComplete + '%');
+                        }
+                    });
+                    return xhr;
+                },
+                success: function (response) {
+                    const tbody = $('#results-table-body');
+                    tbody.empty();
+    
+                    // === Заполняем таблицу результатов ===
+                    response.preview.forEach(row => {
+                        const labels = row.predicted_labels.split('; ').map(label => label.trim());
+                        const badges = labels.map(label => `<span class="badge bg-primary me-1 mb-1 badge-multiline">${label}</span>`).join('');
+                        
+                        tbody.append(`
+                          <tr>
+                            <td>${row.text}</td>
+                            <td>
+                              <div class="d-flex flex-wrap">
+                                ${badges}
+                              </div>
+                            </td>
+                          </tr>
+                        `);
+                    });
+    
+                    // === Показываем таблицу с результатом ===
+                    $('#results-section').removeClass('hidden');
+    
+                    // === Ссылка на скачивание CSV ===
+                    $('#download-link')
+                        .attr('href', response.download_url)
+                        .removeClass('hidden');
+    
+                    // === Чистим контейнер с графиками перед новой вставкой ===
+                    $('#charts-container').empty();
+    
+                    // === Добавляем облако слов ===
+                    if (response.wordcloud_url) {
+                        $('#charts-container').append(`
+                            <h3 class="mt-4">☁️ Облако слов:</h3>
+                            <div class="chart-container mt-3">
+                                <img src="${response.wordcloud_url}" alt="Облако слов" class="img-fluid rounded shadow-sm">
+                            </div>
+                        `);
+                    }
+    
+                    // === График 1: Распределение по категориям ===
+                    if (response.graph1_url) {
+                        $('#charts-container').append(`
+                            <h3 class="mt-4">📊 Распределение по категориям:</h3>
+                            <div class="chart-container mt-3">
+                                <img src="${response.graph1_url}" alt="График 1" class="img-fluid rounded shadow-sm">
+                            </div>
+                        `);
+                    }
+    
+                    // === График 2: Распределение по подкатегориям ===
+                    if (response.graph2_url) {
+                        $('#charts-container').append(`
+                            <h3 class="mt-4">📈 Распределение по подкатегориям:</h3>
+                            <div class="chart-container mt-3">
+                                <img src="${response.graph2_url}" alt="График 2" class="img-fluid rounded shadow-sm">
+                            </div>
+                        `);
+                    }
+    
+                    // === Показываем блок с графиками, если есть что отображать ===
+                    if (response.graph1_url || response.graph2_url || response.wordcloud_url) {
+                        $('#charts-section').removeClass('hidden');
+                    } else {
+                        $('#charts-section').addClass('hidden');
+                    }
+    
+                    // === Прогрессбар скрываем ===
+                    $('#progress-bar').addClass('hidden');
+                },
+                error: function (xhr) {
+                    alert('Ошибка: ' + xhr.responseJSON.error);
+                    $('#progress-bar').addClass('hidden');
+                }
+            });
+        });
+    
+        // === Обработчик клика для кнопки "Показать всё/Скрыть" ===
+        $(document).on('click', '.toggle-text', function () {
+            const container = $(this).closest('.text-truncate-cell');
+            const truncatedText = container.find('.truncated-text');
+            const fullText = container.find('.full-text');
+    
+            truncatedText.toggleClass('d-none');
+            fullText.toggleClass('d-none');
+    
+            $(this).text(function (i, text) {
+                return text === 'Показать всё' ? 'Скрыть' : 'Показать всё';
+            });
+        });
+    });
+    </script>
+</body>
+</html>

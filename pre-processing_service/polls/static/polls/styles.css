@@ -1,0 +1,219 @@
+/* Общие стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+    font-size: 18px; /* Увеличенный базовый размер шрифта */
+}
+
+header {
+    font-weight: 600;
+    text-align: center;
+    padding: 15px 0px; /* Увеличенные отступы */
+    background-color: #fff;
+    border-bottom: 2px solid #ddd; /* Утолщенный бордер */
+}
+
+h1 {
+    font-size: 42px; /* Увеличенный заголовок */
+    margin-bottom: 20px;
+}
+
+.container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 100% !important;
+    margin-left: 0;
+    margin-right: auto;
+    padding: 25px;
+    background-color: #fff;
+    /* border: 3px solid #ddd; */
+    gap: 20px; /* Увеличенный зазор между колонками */
+}
+
+
+.left-section {
+    flex: 5; /* Левая колонка занимает 5 частей */
+    padding: 16px 16px 0px 16px;
+    border: 2px solid #ddd;
+    background-color: #fff;
+}
+
+.right-section {
+    flex: 11; /* Правая колонка занимает 11 частей */
+    padding: 16px 16px 0px 16px;
+    border: 2px solid #ddd;
+    background-color: #fff;
+}
+
+.left-section h2, .right-section h2 {
+    font-size: 30px; /* Увеличенный заголовок секции */
+    margin-bottom: 16px;
+}
+
+.left-section p {
+    margin-bottom: 10px;
+}
+
+.left-section input[type="text"] {
+    width: 100%;
+    padding: 10px 16px; /* Увеличенные отступы внутри инпута */
+    margin-bottom: 20px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    font-size: 18px; /* Увеличенный шрифт для инпута */
+}
+
+.left-section ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.left-section li {
+    margin-bottom: 15px;
+    position: relative;
+    cursor: pointer;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+}
+
+.left-section .emoji {
+    margin-right: 10px;
+    font-size: 24px; /* Увеличенный размер эмодзи */
+}
+
+.subcategories {
+    margin-top: 15px;
+    display: none; /* Таблица скрыта по умолчанию */
+    background-color: #f9f9f9;
+    cursor: pointer;
+}
+
+.subcategories table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.subcategories td {
+    padding: 15px; /* Увеличенные отступы в таблице */
+    border: 2px solid #ddd;
+}
+
+.toggle-button {
+    background: none;
+    border: none;
+    font-size: 24px; /* Увеличенный размер стрелки */
+    cursor: pointer;
+}
+
+.details {
+    display: none; /* По умолчанию строки с деталями скрыты */
+}
+
+.details td {
+    padding: 15px;
+    border: 2px solid #ddd;
+}
+
+.right-section ol {
+   
+}
+
+.right-section h3 {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 26px; /* Увеличенный заголовок */
+}
+
+.file-upload-label {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Увеличенный зазор между кнопкой и текстом */
+}
+
+#upload-button {
+    padding: 15px 30px; /* Увеличенные отступы внутри кнопки */
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+    cursor: pointer;
+    font-size: 18px; /* Увеличенный шрифт для кнопки */
+}
+
+#file-name {
+    font-size: 18px; /* Увеличенный шрифт для текста */
+    color: #666;
+}
+
+footer {
+    text-align: center;
+    padding: 30px 0;
+    background-color: #fff;
+    border-top: 3px solid #ddd;
+    margin-top: 0px; /* Увеличенные отступы */
+}
+
+footer p {
+    text-align: center;
+    font-size: 18px; /* Увеличенный шрифт для текста в подвале */
+    color: #666;
+}
+
+.hidden {
+    display: none !important;
+}
+
+
+.custom-wrapper {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 0;
+    margin-right: auto;
+    padding-left: 0;
+    padding-right: 25px;
+    gap: 20px;
+    background-color: #fff;
+}
+
+
+
+/* При добавлении класса expanded */
+.text-truncate-cell.expanded .truncated-text {
+    display: none;
+}
+.text-truncate-cell.expanded .full-text {
+    display: inline;
+}
+
+.text-truncate-cell .full-text {
+    display: none;
+}
+.text-truncate-cell .truncated-text {
+    display: inline;
+}
+
+/* Уровень 1 - основная категория */
+.level-1 {
+    background-color: #ffffff;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+
+/* Активная строка подкатегории */
+.subcategory.active {
+    background-color: #ebebeb; /* Светло-серый фон */
+}
+
+/* Активная строка с описанием */
+.details.active {
+    background-color: #ebebeb; /* Немного темнее серый фон */
+}
