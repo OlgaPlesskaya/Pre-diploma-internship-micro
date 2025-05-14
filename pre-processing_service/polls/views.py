@@ -32,7 +32,7 @@ def set_progress(percent):
     cache.set(PROGRESS_KEY, percent, timeout=600)  # Храним до 10 минут
 
 def check_model_files():
-    model_dir = '/workspaces/Pre-diploma-internship/pre-processing_service/polls/best_model'
+    model_dir = '/workspaces/Pre-diploma-internship-micro/pre-processing_service/polls/best_model'
     required_files = ['config.json', 'vocab.txt', 'model.safetensors', 'tokenizer_config.json', 'special_tokens_map.json']
     missing_files = [f for f in required_files if not os.path.exists(os.path.join(model_dir, f))]
     if missing_files:
@@ -66,8 +66,8 @@ class PredictionDataset(Dataset):
 def load_model_and_tokenizer():
     try:
         check_model_files()
-        tokenizer = BertTokenizer.from_pretrained('/workspaces/Pre-diploma-internship/pre-processing_service/polls/best_model')
-        model = BertForSequenceClassification.from_pretrained('/workspaces/Pre-diploma-internship/pre-processing_service/polls/best_model')
+        tokenizer = BertTokenizer.from_pretrained('/workspaces/Pre-diploma-internship-micro/pre-processing_service/polls/best_model')
+        model = BertForSequenceClassification.from_pretrained('/workspaces/Pre-diploma-internship-micro/pre-processing_service/polls/best_model')
         return tokenizer, model
     except Exception as e:
         print(f"⚠️ Ошибка: {str(e)}. Убедитесь, что все файлы модели находятся в папке best_model.")
@@ -77,7 +77,7 @@ def generate_graphs(output_df):
     """
     Генерирует два графика и возвращает их URL-адреса.
     """
-    static_dir = '/workspaces/Pre-diploma-internship/pre-processing_service/polls/static/images'
+    static_dir = '/workspaces/Pre-diploma-internship-micro/pre-processing_service/polls/static/images'
     
     
     labels_path = os.path.join(os.path.dirname(__file__), 'Классификации.xlsx')
@@ -279,7 +279,7 @@ def generate_wordcloud(output_df):
     ).generate(all_cleaned_text)
 
     # Сохраняем облако слов в файл
-    static_dir = '/workspaces/Pre-diploma-internship/pre-processing_service/polls/static/images'
+    static_dir = '/workspaces/Pre-diploma-internship-micro/pre-processing_service/polls/static/images'
     wordcloud_path = os.path.join(static_dir, 'wordcloud.png')
     wordcloud.to_file(wordcloud_path)
     
