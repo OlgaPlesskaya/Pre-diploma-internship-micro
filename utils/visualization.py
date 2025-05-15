@@ -4,6 +4,7 @@ from wordcloud import WordCloud
 import io
 import pandas as pd
 import re
+from .api_client import get_subcategory_to_category_mapping
 
 def fig_to_bytes(fig):
     buf = io.BytesIO()
@@ -14,9 +15,8 @@ def fig_to_bytes(fig):
 
 
 def generate_graphs(output_df):
-    labels_path = "Классификации.xlsx"
-    labels_df = pd.read_excel(labels_path)
-    label_to_category = dict(zip(labels_df['level_3'], labels_df['level_2']))
+
+    label_to_category = get_subcategory_to_category_mapping()
 
     def map_to_category(labels_str):
         if not isinstance(labels_str, str) or not labels_str.strip():

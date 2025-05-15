@@ -25,3 +25,22 @@ def get_subcategories(category_id, api_url=None):
     except Exception as e:
         print(f"Ошибка подключения к API подкатегорий: {e}")
         return []
+
+
+def get_subcategory_to_category_mapping():
+    mapping = {}
+
+    # Получаем все категории
+    categories = get_categories()
+    category_names = {cat["identifier"]: cat["name"] for cat in categories}
+
+    # Для каждой категории получаем подкатегории
+    for cat in categories:
+        category_id = cat["identifier"]
+        subcategories = get_subcategories(category_id)
+
+        for sub in subcategories:
+            # Ключ — имя подкатегории, значение — имя категории
+            mapping[sub["name"]] = category_names.get(sub["category"], "Без категории")
+
+    return mapping

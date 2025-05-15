@@ -5,6 +5,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from .model_loader import load_model_and_tokenizer
 from config.settings import MODEL_PATH, MAX_LENGTH, SCALING_FACTOR
+from .api_client import get_categories, get_subcategories
 
 
 class PredictionDataset(Dataset):
@@ -65,14 +66,28 @@ def predict_labels(texts):
 
     return all_active_labels
 
+def build_label_dict():
+    label_dict = {}
+    
+    categories = get_categories()
+    for category in categories:
+        category_id = category["identifier"]
+        subcategories = get_subcategories(category_id)
+        
+        for sub in subcategories:
+            label_dict[sub["identifier"]] = sub["name"]
+    
+    return label_dict
 
 def process_uploaded_file(df):
     texts = df.iloc[:, 0].values
     predicted_indices = predict_labels(texts)
 
     output_df = pd.DataFrame({"text": texts, "predicted_labels": predicted_indices})
-    labels_df = pd.read_excel("Классификации.xlsx")
-    label_dict = dict(zip(labels_df['id'], labels_df['level_3']))
+    #labels_df = pd.read_excel("Классификации.xlsx")
+    #label_dict = dict(zip(labels_df['id'], labels_df['level_3']))
+
+    label_dict = build_label_dict()
 
     def map_labels(label_str, label_map):
         try:
