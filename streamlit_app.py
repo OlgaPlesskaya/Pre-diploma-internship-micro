@@ -329,24 +329,40 @@ if uploaded_file is not None:
     if st.button("Начать обработку"):
         try:
             df = pd.read_csv(uploaded_file)
+            
+            # Создаем временные контейнеры для прогресса и статуса
             status_text = st.empty()
             progress_bar = st.progress(0)
 
+            # Шаг 1: Запуск модели
             status_text.info("Запуск модели...")
+            time.sleep(0.5)  # эмуляция задержки (можно удалить, если функция сама "тяжёлая")
             processed_df = process_uploaded_file(df)
+            progress_bar.progress(33)
 
+            # Шаг 2: Генерация графиков
             status_text.info("Генерация графиков...")
             wordcloud_buffer = generate_wordcloud(processed_df)
             graph1_buffer, graph2_buffer = generate_graphs(processed_df)
+            progress_bar.progress(66)
 
-            # Сохраняем всё в session_state, чтобы не пересчитывать при скачивании
+            # Шаг 3: Сохранение результатов
+            status_text.info("Сохранение данных...")
+            time.sleep(0.5)  # эмуляция завершения
+            progress_bar.progress(100)
+
+            # Сохраняем всё в session_state
             st.session_state.processed_df = processed_df
             st.session_state.wordcloud_buffer = wordcloud_buffer
             st.session_state.graph1_buffer = graph1_buffer
             st.session_state.graph2_buffer = graph2_buffer
 
-            status_text.success("Файл успешно обработан!")
-            progress_bar.progress(100)
+            # Убираем статус и прогресс-бар
+            status_text.empty()
+            progress_bar.empty()
+
+            # Дополнительное сообщение можно оставить
+            st.success("Файл успешно обработан!")
 
         except Exception as e:
             st.error(f"Ошибка: {e}")
@@ -354,9 +370,10 @@ if uploaded_file is not None:
 # Показываем результаты, если они уже есть в session_state
 if st.session_state.processed_df is not None:
     processed_df = st.session_state.processed_df
+
+    st.markdown("### Результаты обработки (первые 10 строк):")
+    #st.dataframe(processed_df[['text', 'predicted_labels']].head(10))
     
-
-
     # Пример преобразования списка меток в HTML-бэйджи
     def labels_to_badges(labels):
         if isinstance(labels, str):
@@ -373,7 +390,7 @@ if st.session_state.processed_df is not None:
     display_df.columns = ['Текст', 'Метки']
 
     # Стили для таблицы
-    st.markdown("""
+    st.html('''
         <style>
         .badge-table {
             width: 100%;
@@ -389,7 +406,7 @@ if st.session_state.processed_df is not None:
             background-color: #f9f9f9;
         }
 
-        .st-emotion-cache-16tyu1 th{
+        .st-emotion-cache-16tyu1 th {
             text-align: left;
         }
 
@@ -397,15 +414,12 @@ if st.session_state.processed_df is not None:
             vertical-align: top;
         }
         </style>
-    """, unsafe_allow_html=True)
+    ''')
 
     # Конвертация DataFrame в HTML и вывод
     html_table = display_df.to_html(index=False, escape=False)
     st.markdown(f'<table class="badge-table">{html_table}</table>', unsafe_allow_html=True)
 
-
-    st.markdown("## Результаты обработки (первые 10 строк):")
-    st.dataframe(processed_df[['text', 'predicted_labels']].head(10))
 
     # Скачивание CSV
     csv_ready_df = processed_df[['text', 'predicted_labels']]
