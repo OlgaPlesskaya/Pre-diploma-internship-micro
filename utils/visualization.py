@@ -71,7 +71,6 @@ def generate_graphs(output_df):
     )
 
 
-
     fig1.update_yaxes(
         tickfont=dict(
             size=14,           # размер шрифта

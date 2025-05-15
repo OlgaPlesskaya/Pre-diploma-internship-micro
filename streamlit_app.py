@@ -30,9 +30,12 @@ with st.sidebar:
             # Стиль для выравнивания заголовка popover по левому краю
             st.markdown("""
                 <style>
-                    p {
+                p {
 
                         text-align: left !important;
+                    }
+                    .st-emotion-cache-qm7g72 {
+                        font-size: 0rem !important;
                     }
                 </style>
             """, unsafe_allow_html=True)
