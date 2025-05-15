@@ -395,7 +395,7 @@ if st.session_state.processed_df is not None:
         .badge-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 0px !important;
         }
         .badge-table th, .badge-table td {
             padding: 10px;
@@ -412,6 +412,10 @@ if st.session_state.processed_df is not None:
 
         td {
             vertical-align: top;
+        }
+
+        .st-emotion-cache-16tyu1 table {
+            margin-bottom: 0rem;
         }
         </style>
     ''')
