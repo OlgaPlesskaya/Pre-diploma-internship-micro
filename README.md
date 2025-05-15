@@ -146,4 +146,5 @@ API документирован через Swagger: [http://localhost:8000/swag
 
 ![screencapture-humble-space-pancake-4xv9pj5g9rfj5pv-8501-app-github-dev-2025-05-15-19_43_54](https://github.com/user-attachments/assets/ca576d68-f4b4-4be7-85c7-d715b553ce06)
 
+![image](https://github.com/user-attachments/assets/866bb35b-d18b-4951-88c6-5a00ec8b18e6)
 
