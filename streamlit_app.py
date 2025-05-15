@@ -8,6 +8,8 @@ import time
 from utils.data_processor import process_uploaded_file
 from utils.visualization import generate_wordcloud, generate_graphs
 from utils.api_client import get_categories, get_subcategories
+from config.settings import API_URL_UPLOAD
+from utils.api_client import upload_original_file, update_processed_file
 
 # === UI ===
 st.set_page_config(page_title="Сервис предобработки текстовых сообщений", layout="wide")
@@ -48,6 +50,15 @@ if uploaded_file is not None:
     if st.button("Начать обработку"):
         try:
             df = pd.read_csv(uploaded_file)
+
+            file_info = upload_original_file(
+                uploaded_file.getvalue(),
+                uploaded_file.name,
+                API_URL_UPLOAD
+            )
+
+            file_id = file_info['id'] if file_info else None
+
             status_text = st.empty()
             progress_bar = st.progress(0)
 
@@ -64,6 +75,9 @@ if uploaded_file is not None:
             status_text.info("Сохранение данных...")
             time.sleep(0.5)
             progress_bar.progress(100)
+
+            if file_id:
+                update_processed_file(file_id, processed_df, API_URL_UPLOAD)
 
             st.session_state.update({
                 'processed_df': processed_df,
