@@ -61,11 +61,12 @@ TEMPLATES = [
 WSGI_APPLICATION = "mysite.wsgi.application"
 
 REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+        'rest_framework.permissions.AllowAny',  # ← Все могут читать и писать
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # Можно оставить пустым, чтобы отключить все виды аутентификации
+    ],
 }
 
 # Database
