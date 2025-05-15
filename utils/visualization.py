@@ -35,7 +35,7 @@ def generate_graphs(output_df):
         y=sorted_categories.index,
         orientation='h',
         #title="Распределение по категориям",
-        #labels={'x': 'Количество', 'y': 'Категории'},
+        labels={'x': ' ', 'y': ' '},
         color_discrete_sequence=['#fd7e14', '#6c757d', '#17a2b8', '#dc3545', '#ffc107', '#28a745', '#007bff']
     )
     fig1.update_layout(height=400, margin=dict(l=100))
@@ -49,12 +49,41 @@ def generate_graphs(output_df):
         y=subcategory_counts.index[::-1],
         orientation='h',
         #title="Топ-10 подкатегорий",
-        #labels={'x': 'Количество', 'y': 'Подкатегории'},
+        labels={'x': ' ', 'y': ' '},
         color_discrete_sequence=['#BA68C8']
     )
     fig2.update_layout(height=400, margin=dict(l=100))
-    fig2.update_xaxes(gridcolor='lightgray', gridwidth=0.7)
+    fig2.update_xaxes(gridcolor='lightgray', gridwidth=0.7, tickfont=dict(size=14))
     fig2.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+    
+    fig1.update_xaxes(
+        tickfont=dict(
+            size=14,           # размер шрифта
+            color='black'        # цвет подписей оси Y
+        )
+    )
+
+    fig2.update_xaxes(
+        tickfont=dict(
+            size=14,           # размер шрифта
+            color='black'        # цвет подписей оси Y
+        )
+    )
+
+
+
+    fig1.update_yaxes(
+        tickfont=dict(
+            size=14,           # размер шрифта
+            color='black'        # цвет подписей оси Y
+        )
+    )
+    fig2.update_yaxes(
+        tickfont=dict(
+            size=14,           # размер шрифта
+            color='black'        # цвет подписей оси Y
+        )
+    )
 
     return fig1, fig2
 
