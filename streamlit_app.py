@@ -15,6 +15,8 @@ from utils.api_client import upload_original_file, update_processed_file
 st.set_page_config(page_title="Сервис предобработки текстовых сообщений", layout="wide")
 st.title("Сервис предобработки текстовых сообщений")
 
+
+
 # === Боковая панель ===
 with st.sidebar:
     st.header("Образование")
@@ -24,6 +26,16 @@ with st.sidebar:
         with st.expander(f"{category['emoji']} {category['name']}"):
             subcategories = get_subcategories(category['identifier'])
             filtered = [s for s in subcategories if search_term.lower() in s["name"].lower() or not search_term]
+            
+            # Стиль для выравнивания заголовка popover по левому краю
+            st.markdown("""
+                <style>
+                    p {
+                        text-align: left !important;
+                    }
+                </style>
+            """, unsafe_allow_html=True)
+                        
             for subcat in filtered:
                 with st.popover(subcat["name"]):
                     st.markdown(subcat["description"])
