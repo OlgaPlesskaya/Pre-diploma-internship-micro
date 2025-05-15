@@ -6,16 +6,14 @@ import pandas as pd
 import re
 from .api_client import get_subcategory_to_category_mapping
 
-def fig_to_bytes(fig):
-    buf = io.BytesIO()
-    fig.savefig(buf, format="png", bbox_inches='tight', dpi=100)
-    plt.close(fig)
-    buf.seek(0)
-    return buf
+import plotly.express as px
+import plotly.graph_objects as go
+
+
+from config.settings import STOP_WORDS
 
 
 def generate_graphs(output_df):
-
     label_to_category = get_subcategory_to_category_mapping()
 
     def map_to_category(labels_str):
@@ -25,46 +23,91 @@ def generate_graphs(output_df):
         categories = set(label_to_category[label] for label in labels if label in label_to_category)
         return list(categories)
 
+    # Категории
     output_df['categories'] = output_df['predicted_labels'].apply(map_to_category)
     exploded_categories = output_df.explode('categories')
     category_counts = exploded_categories['categories'].value_counts().sort_values(ascending=False)
     sorted_categories = category_counts.sort_values(ascending=True)
-
-    colors = ['#fd7e14', '#6c757d', '#17a2b8', '#dc3545', '#ffc107', '#28a745', '#007bff']
-
-    fig1, ax1 = plt.subplots(figsize=(12, 6))
-    bars = ax1.barh(sorted_categories.index, sorted_categories.values, color=colors[:len(sorted_categories)], height=0.5)
-    ax1.grid(axis='x', color='gray', linestyle='--', linewidth=0.7, zorder=1)
-    ax1.set_facecolor('none')
-    graph1_buffer = fig_to_bytes(fig1)
-
+    
+    # График 1: категории
+    fig1 = px.bar(
+        x=sorted_categories.values,
+        y=sorted_categories.index,
+        orientation='h',
+        #title="Распределение по категориям",
+        #labels={'x': 'Количество', 'y': 'Категории'},
+        color_discrete_sequence=['#fd7e14', '#6c757d', '#17a2b8', '#dc3545', '#ffc107', '#28a745', '#007bff']
+    )
+    fig1.update_layout(height=400, margin=dict(l=100))
+    fig1.update_xaxes(gridcolor='lightgray', gridwidth=0.7)
+    fig1.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+    
+    # График 2: подкатегории
     subcategory_counts = output_df['predicted_labels'].str.split('; ').explode().value_counts().head(10)
-    fig2, ax2 = plt.subplots(figsize=(12, 6))
-    bars = ax2.barh(subcategory_counts.index[::-1], subcategory_counts.values[::-1], color='#BA68C8', height=0.5)
-    ax2.grid(axis='x', color='gray', linestyle='--', linewidth=0.7, zorder=1)
-    ax2.set_facecolor('none')
-    graph2_buffer = fig_to_bytes(fig2)
+    fig2 = px.bar(
+        x=subcategory_counts.values[::-1],
+        y=subcategory_counts.index[::-1],
+        orientation='h',
+        #title="Топ-10 подкатегорий",
+        #labels={'x': 'Количество', 'y': 'Подкатегории'},
+        color_discrete_sequence=['#BA68C8']
+    )
+    fig2.update_layout(height=400, margin=dict(l=100))
+    fig2.update_xaxes(gridcolor='lightgray', gridwidth=0.7)
+    fig2.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
 
-    return graph1_buffer, graph2_buffer
+    return fig1, fig2
 
+
+
+
+def clean_text(text):
+    text = str(text).lower()
+    text = re.sub(r'[^а-яА-Яa-zA-Z\s]', '', text)
+    words = text.split()
+    filtered_words = [word for word in words if word not in STOP_WORDS and len(word) > 2]
+    return ' '.join(filtered_words)
 
 def generate_wordcloud(output_df):
-    from config.settings import STOP_WORDS
-
-    def clean_text(text):
-        text = str(text).lower()
-        text = re.sub(r'[^а-яА-Яa-zA-Z\s]', '', text)
-        words = text.split()
-        filtered_words = [word for word in words if word not in STOP_WORDS and len(word) > 2]
-        return ' '.join(filtered_words)
-
     output_df['cleaned_text'] = output_df['text'].apply(clean_text)
     all_cleaned_text = ' '.join(output_df['cleaned_text'])
+
     if not all_cleaned_text.strip():
         all_cleaned_text = "Нет данных"
 
-    wordcloud = WordCloud(width=1500, height=800, background_color='white', max_words=100).generate(all_cleaned_text)
-    wordcloud_buffer = io.BytesIO()
-    wordcloud.to_image().save(wordcloud_buffer, format="PNG")
-    wordcloud_buffer.seek(0)
-    return wordcloud_buffer
+    # Генерация облака слов
+    wordcloud = WordCloud(
+        width=1200,
+        height=500,
+        background_color='white',
+        max_words=100,
+    ).generate(all_cleaned_text)
+
+    # Преобразуем изображение в объект PIL и сохраняем в байты
+    image = wordcloud.to_image()
+
+    # Создаем Plotly-график с изображением
+    fig = go.Figure()
+
+    fig.add_layout_image(
+        dict(
+            source=image,
+            x=0,
+            y=1,
+            xref="paper",
+            yref="paper",
+            sizex=1,
+            sizey=1,
+            sizing="contain",
+            opacity=1
+        )
+    )
+
+    fig.update_layout(
+        margin=dict(l=0, r=0, t=0, b=0),
+        xaxis=dict(showgrid=False, zeroline=False, visible=False),
+        yaxis=dict(showgrid=False, zeroline=False, visible=False),
+        height=400
+    )
+
+    return fig

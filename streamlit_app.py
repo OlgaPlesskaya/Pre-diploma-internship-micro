@@ -31,6 +31,7 @@ with st.sidebar:
             st.markdown("""
                 <style>
                     p {
+
                         text-align: left !important;
                     }
                 </style>
@@ -80,9 +81,13 @@ if uploaded_file is not None:
             progress_bar.progress(33)
 
             status_text.info("Генерация графиков...")
-            wordcloud_buffer = generate_wordcloud(processed_df)
-            graph1_buffer, graph2_buffer = generate_graphs(processed_df)
+
+            
+            wordcloud_fig = generate_wordcloud(processed_df)
+
+            fig1, fig2 = generate_graphs(processed_df)
             progress_bar.progress(66)
+
 
             status_text.info("Сохранение данных...")
             time.sleep(0.5)
@@ -93,9 +98,9 @@ if uploaded_file is not None:
 
             st.session_state.update({
                 'processed_df': processed_df,
-                'wordcloud_buffer': wordcloud_buffer,
-                'graph1_buffer': graph1_buffer,
-                'graph2_buffer': graph2_buffer
+                'wordcloud_fig': wordcloud_fig,
+                'fig1': fig1,
+                'fig2': fig2
             })
 
             status_text.empty()
@@ -175,14 +180,13 @@ if st.session_state.processed_df is not None:
 
 
     # Графики
-    if st.session_state.wordcloud_buffer:
+    if st.session_state.wordcloud_fig:
         st.markdown("#### ☁️ Облако слов")
-        st.image(st.session_state.wordcloud_buffer, use_container_width=True)
+        st.plotly_chart(wordcloud_fig, use_container_width=True)
 
-    if st.session_state.graph1_buffer:
+    if st.session_state.fig1:
         st.markdown("#### 📊 Распределение по категориям")
-        st.image(st.session_state.graph1_buffer, use_container_width=True)
-
-    if st.session_state.graph2_buffer:
-        st.markdown("#### 📈 Распределение по подкатегориям")
-        st.image(st.session_state.graph2_buffer, use_container_width=True)
+        st.plotly_chart(fig1, use_container_width=True)
+        st.markdown("#### 📈 Топ-10 подкатегорий")
+        st.plotly_chart(fig2, use_container_width=True)
+        
